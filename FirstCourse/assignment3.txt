@@ -1,0 +1,133 @@
+Question 1
+
+import pandas as pd
+import numpy as np
+# Filter all warnings. If you would like to see the warnings, please comment the two lines below.
+import warnings
+warnings.filterwarnings('ignore')
+
+def answer_one():
+
+   
+    
+    ### PREPARSING THE ENERGY USAGE EXCEL FILE
+    
+    
+    Energy = pd.read_excel('assets/Energy Indicators.xls')
+    
+    #Just for carrying out trials
+    new_Energy = Energy.copy()
+    
+    # Remove header and footer. Including titles and units.
+    new_Energy = new_Energy.iloc[17:244]
+    # Drops the two first columns
+    new_Energy.drop(new_Energy.columns[[0,2]], axis=1,inplace=True)
+    # Changing column labels
+    new_Energy.rename(columns = {'Unnamed: 1' : 'Country',
+                                'Unnamed: 3' : 'Energy Supply',
+                                'Unnamed: 4' : 'Energy Supply per Capita',
+                                'Unnamed: 5' : '% Renewable'}, inplace = True)
+
+    
+    # Replaces values of no information i.e "..." with np.NaN 
+    new_Energy['Energy Supply'].replace('...',np.NaN,inplace=True)
+    
+    # Changes petajoule to gigajoule        
+    new_Energy['Energy Supply'] = np.multiply(new_Energy['Energy Supply'],1000000)
+    new_Energy.set_index('Country', inplace=True)
+    new_Energy.rename(index = {"Republic of Korea": "South Korea",
+                                "United States of America": "United States",
+                                "United Kingdom of Great Britain and Northern Ireland": "United Kingdom",
+                                "China, Hong Kong Special Administrative Region": "Hong Kong"}, inplace=True)
+    
+    # Changes all countries having parenthesis. 
+    for item in new_Energy.index:
+        if item[-1] == ")":
+            item_list = item.split('(')
+            new_Energy.rename(index = {item : item_list[0].strip()},inplace=True)
+    
+    
+    # Just changing back to normal indexing for now and changing name.
+    new_Energy.reset_index(inplace = True)
+    new_Energy.index = new_Energy.index+1
+    Energy = new_Energy
+    
+    ### PREPARSING GDP DATA FROM CSV FILE
+    
+    GDP = pd.read_csv('assets/world_bank.csv')
+    
+    #Remove header
+    GDP = GDP[4:]
+    
+    #Change name of title
+        
+    
+
+    GDP.rename(columns = {'Data Source' : 'Country'}, inplace=True)
+        
+    #Change names
+    GDP['Country'].replace({"Korea, Rep." : "South Korea", 
+                            "Iran, Islamic Rep.": "Iran",
+                            "Hong Kong SAR, China": "Hong Kong"}, inplace=True)
+    
+
+    
+    
+    ################# TRYING TO CHANGE NAME OF A LIST OF COLUMNS #############################
+#     GDP.rename(columns = {[GDP.columns[4:]] : [np.arange[1960:(1960+len(GDP.columns[4:]))]]})
+    
+    
+    
+#     df2 = pd.DataFrame(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]), columns=['1', '2', '3'])
+    
+#     print(df2)
+#    df2.rename(columns = {df2.columns[0:]: [4,5,6]}) 
+#     df2.columns[0:2] = [4,5,6]
+#     print(df2)
+    
+    ##################################################################################################
+    
+    
+    
+    
+    ### PREPARSING JOURNAL CONTRIBUTION EXCEL FILE
+    
+    ScimEn = pd.read_excel('assets/scimagojr-3.xlsx')
+    
+    
+    
+    ### JOINING THE TABLES
+    
+    #Picks out the last 10 years of GDP data. 
+    GDP = pd.concat([GDP[GDP.columns[0]],GDP[GDP.columns[-10:]]], axis=1)
+    
+    merge1 = pd.merge(Energy, GDP, how='inner', on='Country')
+    
+    # Only takes the top 15 countries from ScimEn according to task. 
+    df = pd.merge(merge1, ScimEn[:15], how='inner', on='Country')
+    
+        
+    df.set_index('Country', inplace=True)
+    
+    
+    # Making sure the names and the order of the columns fits the description
+    df.rename(columns = {'Unnamed: 50':'2006', 'Unnamed: 51':'2007', 'Unnamed: 52':'2008',
+               'Unnamed: 53':'2009', 'Unnamed: 54':'2010', 'Unnamed: 55':'2011',
+               'Unnamed: 56':'2012', 'Unnamed: 57':'2013','Unnamed: 58': '2014', 
+               'Unnamed: 59':'2015'}, inplace = True)
+    
+    df = df.reindex(columns=['Rank', 'Documents', 'Citable documents', 'Citations', 
+                               'Self-citations','Citations per document', 'H index', 
+                               'Energy Supply', 'Energy Supply per Capita','% Renewable',
+                               '2006', '2007', '2008', '2009', '2010', '2011', '2012', 
+                               '2013', '2014', '2015'])
+
+
+    
+    return df.astype('float')
+    
+
+answer_one()
+    #raise NotImplementedError()
+
+

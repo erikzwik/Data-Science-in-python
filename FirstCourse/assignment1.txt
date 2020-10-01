@@ -1,0 +1,54 @@
+Part A
+
+import re
+def names():
+    simple_string = """Amy is 5 years old, and her sister Mary is 2 years old. 
+    Ruth and Peter, their parents, have 3 kids."""
+    return re.findall("Amy|Mary|Ruth|Peter", simple_string)
+
+
+    # YOUR CODE HERE
+    # raise NotImplementedError()
+
+
+Part B
+
+import re
+def names():
+    simple_string = """Amy is 5 years old, and her sister Mary is 2 years old. 
+    Ruth and Peter, their parents, have 3 kids."""
+    return re.findall("Amy|Mary|Ruth|Peter", simple_string)
+
+
+    # YOUR CODE HERE
+    # raise NotImplementedError()
+
+
+
+Part C
+import re
+def logs():
+    with open("assets/logdata.txt", "r") as file:
+        logdata = file.read()
+    
+    # YOUR CODE HERE
+
+    pattern = """ 
+    (?P<host>.*)              #Host IP
+    (\ -\ )                  #Seperator
+    (?P<user_name>.* )        #User name
+    (\ \[)                   #Seperator
+    (?P<time>.*)             #Time
+    (\] \ \")                  #Seperator
+    (?P<request>.*)          #Request
+    (\")
+    """
+
+    log = []
+    for item in re.finditer(pattern, logdata, re.VERBOSE):
+        log.append(item.groupdict())
+    return log
+    
+    # Something like {?<host> .. <user_name> .. <time> .. <request>}
+    # 
+    #raise NotImplementedError()
